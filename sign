@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Signage MTs Persis Serang</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #000;
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            aspect-ratio: 16/9;
+            position: relative;
+        }
+        
+        /* Video Section (50% width) */
+        .video-section {
+            width: 50%;
+            height: 100%;
+            position: relative;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        #youtube-video {
+            width: 100%;
+            height: 100%;
+            border: none;
+            object-fit: cover;
+        }
+        
+        /* Info Section (50% width) */
+        .info-section {
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a192f, #172a45);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Header Section */
+        .header-section {
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            height: 70px;
+        }
+        
+        .school-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .school-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-right: 12px;
+        }
+        
+        .school-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .school-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #FFD700;
+        }
+        
+        .datetime {
+            text-align: right;
+        }
+        
+        .time {
+            font-size: 1rem;
+            font-weight: 400;
+        }
+        
+        .date {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        /* Prayer Times Section */
+        .prayer-section {
+            padding: 8px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .prayer-times {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+        
+        .prayer-time {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 6px;
+            background: rgba(255, 215, 0, 0.1);
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+        
+        .prayer-name {
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 2px;
+        }
+        
+        .prayer-hour {
+            font-weight: 600;
+        }
+        
+        .prayer-time.active {
+            background: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+        }
+        
+        /* Cards Container */
+        .cards-container {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Card Styles */
+        .info-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 15px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            overflow-y: auto;
+            background: rgba(10, 25, 47, 0.8);
+            border-radius: 8px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        
+        .info-card.active {
+            opacity: 1;
+            transform: translateX(0);
+            z-index: 2;
+        }
+        
+        .info-card.next {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .info-card.prev {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #FFD700;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+            font-size: 1.3rem;
+        }
+        
+        .card-content {
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        /* Scrollbar */
+        .info-card::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .info-card::-webkit-scrollbar-thumb {
+            background: rgba(255,215,0,0.3);
+            border-radius: 3px;
+        }
+        
+        /* Student Stats */
+        .student-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #FFD700;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Event List */
+        .event-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .event-list li {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            display: flex;
+        }
+        
+        .event-date {
+            font-weight: 600;
+            margin-right: 15px;
+            color: #FFD700;
+            min-width: 80px;
+            font-size: 0.9rem;
+        }
+        
+        .event-desc {
+            flex-grow: 1;
+            font-size: 1rem;
+        }
+        
+        /* Staff List */
+        .staff-list {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .staff-item {
+            display: flex;
+            font-size: 1rem;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 6px;
+            transition: transform 0.3s ease;
+        }
+        
+        .staff-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,215,0,0.1);
+        }
+        
+        .staff-time {
+            font-weight: 600;
+            color: #FFD700;
+            min-width: 70px;
+            font-size: 1rem;
+        }
+        
+        /* Ticker */
+        .ticker {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: rgba(0,0,0,0.7);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            border-top: 1px solid rgba(255,215,0,0.3);
+            z-index: 3;
+        }
+        
+        .ticker-content {
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: ticker 25s linear infinite;
+            font-size: 1rem;
+            text-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+        
+        @keyframes ticker {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+        
+        /* Floating indicators */
+        .indicators {
+            position: absolute;
+            bottom: 45px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 4;
+        }
+        
+        .indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            margin: 0 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .indicator.active {
+            background: #FFD700;
+            transform: scale(1.3);
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            font-size: 1.1rem;
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .loading i {
+            margin-right: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #ff6b6b;
+            text-align: center;
+            padding: 15px;
+            font-size: 1rem;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Video Section (50%) -->
+        <div class="video-section">
+            <iframe id="youtube-video" frameborder="0" allowfullscreen
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+        
+        <!-- Info Section (50%) -->
+        <div class="info-section">
+            <!-- Header Section -->
+            <div class="header-section">
+                <div class="school-info">
+                    <div class="school-logo">
+                        <img src="https://iili.io/FPrMmXV.png" alt="MTs Persis Serang Logo">
+                    </div>
+                    <div class="school-name">MTs PERSIS SERANG</div>
+                </div>
+                <div class="datetime">
+                    <div class="time" id="time">00:00:00</div>
+                    <div class="date" id="date">1 Jan 2023</div>
+                </div>
+            </div>
+            
+            <!-- Prayer Times Section -->
+            <div class="prayer-section">
+                <div class="prayer-times" id="prayer-times">
+                    <div class="prayer-time" data-prayer="subuh">
+                        <span class="prayer-name">Subuh</span>
+                        <span class="prayer-hour">04:30</span>
+                    </div>
+                    <div class="prayer-time" data-prayer="dzuhur">
+                        <span class="prayer-name">Dzuhur</span>
+                        <span class="prayer-hour">12:00</span>
+                    </div>
+                    <div class="prayer-time" data-prayer="ashar">
+                        <span class="prayer-name">Ashar</span>
+                        <span class="prayer-hour">15:15</span>
+                    </div>
+                    <div class="prayer-time" data-prayer="maghrib">
+                        <span class="prayer-name">Maghrib</span>
+                        <span class="prayer-hour">18:00</span>
+                    </div>
+                    <div class="prayer-time" data-prayer="isya">
+                        <span class="prayer-name">Isya</span>
+                        <span class="prayer-hour">19:15</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cards Container -->
+            <div class="cards-container">
+                <!-- Card 1: Student Stats -->
+                <div class="info-card active" id="card1">
+                    <h2 class="card-title"><i class="fas fa-users"></i> Data Siswa Aktif</h2>
+                    <div class="card-content" id="student-data">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i> Memuat data siswa...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 2: Agenda Kegiatan -->
+                <div class="info-card" id="card2">
+                    <h2 class="card-title"><i class="fas fa-calendar-alt"></i> Agenda Kegiatan</h2>
+                    <div class="card-content" id="agenda-data">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i> Memuat agenda kegiatan...
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Card 3: Guru Pembina -->
+                <div class="info-card" id="card3">
+                    <h2 class="card-title"><i class="fas fa-chalkboard-teacher"></i> Guru Pembina Hari Ini</h2>
+                    <div class="card-content" id="guru-data">
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i> Memuat data guru...
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Indicators -->
+            <div class="indicators">
+                <div class="indicator active" data-card="1"></div>
+                <div class="indicator" data-card="2"></div>
+                <div class="indicator" data-card="3"></div>
+            </div>
+            
+            <!-- Ticker -->
+            <div class="ticker">
+                <div class="ticker-content">
+                    <i class="fas fa-info-circle"></i> Informasi lebih lanjut kunjungi www.mtspersisserang.sch.id
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Google Sheets ID and configuration
+        const SHEET_ID = "1dbDYMNgIzyjuV9ZqvEJz-iROPllKLttHq9OFphtYFQg";
+        
+        // Daftar video YouTube
+        const videoIds = [
+            'hl090uYHn3U',  // Ganti dengan video 1
+            '8aNUEacTV4Y',  // Ganti dengan video 2
+            'YJIB16XQ5ns'   // Ganti dengan video 3
+        ];
+        
+        let currentVideoIndex = 0;
+        let player;
+        
+        // Fungsi untuk memuat video YouTube
+        function loadYouTubeVideo() {
+            const videoId = videoIds[currentVideoIndex];
+            const iframe = document.getElementById('youtube-video');
+            
+            // Gunakan parameter autoplay=1 tanpa mute untuk audio aktif
+            iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=0&enablejsapi=1&playsinline=1`;
+            
+            // Setup YouTube Player API
+            const tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            const firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        }
+        
+        // Fungsi untuk YouTube Player API
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-video', {
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+        
+        function onPlayerReady(event) {
+            event.target.playVideo();
+        }
+        
+        function onPlayerStateChange(event) {
+            // Ketika video selesai diputar (state = 0), ganti ke video berikutnya
+            if (event.data === YT.PlayerState.ENDED) {
+                currentVideoIndex = (currentVideoIndex + 1) % videoIds.length;
+                player.loadVideoById(videoIds[currentVideoIndex]);
+            }
+        }
+        
+        // Fungsi untuk update jam dan tanggal
+        function updateClock() {
+            const now = new Date();
+            const timeElement = document.getElementById('time');
+            const dateElement = document.getElementById('date');
+            
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const dayName = days[now.getDay()];
+            const dateNum = now.getDate();
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const monthName = months[now.getMonth()];
+            const year = now.getFullYear();
+            
+            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+            dateElement.textContent = `${dayName}, ${dateNum} ${monthName} ${year}`;
+            
+            // Update active prayer time
+            updateActivePrayerTime(now);
+            
+            setTimeout(updateClock, 1000);
+            
+            // Return current day name for other functions
+            return dayName;
+        }
+        
+        // Fungsi untuk update waktu sholat aktif
+        function updateActivePrayerTime(now) {
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            const currentTime = currentHour * 100 + currentMinute;
+            
+            // Reset all active classes
+            document.querySelectorAll('.prayer-time').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Determine current prayer time (simplified logic)
+            let activePrayer = null;
+            if (currentTime < 430) activePrayer = 'isya';
+            else if (currentTime < 1200) activePrayer = 'subuh';
+            else if (currentTime < 1515) activePrayer = 'dzuhur';
+            else if (currentTime < 1800) activePrayer = 'ashar';
+            else if (currentTime < 1915) activePrayer = 'maghrib';
+            else activePrayer = 'isya';
+            
+            // Set active class
+            if (activePrayer) {
+                document.querySelector(`.prayer-time[data-prayer="${activePrayer}"]`)?.classList.add('active');
+            }
+        }
+        
+        // Fungsi untuk mengambil data dari Google Sheets
+        async function fetchData() {
+            try {
+                google.charts.load('current', { packages: ['table'] });
+                google.charts.setOnLoadCallback(async () => {
+                    await fetchDataSiswa();
+                    await fetchDataAgenda();
+                    await fetchDataGuru();
+                });
+                return true;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return false;
+            }
+        }
+        
+        // Fungsi untuk memproses data siswa
+        function fetchDataSiswa() {
+            return new Promise((resolve) => {
+                const queryString = encodeURIComponent("SELECT E, F, G WHERE G = 'Siswa Aktif'");
+                const sheetName = "Sheet1";
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${sheetName}&headers=1&tq=${queryString}`;
+                const query = new google.visualization.Query(url);
+                
+                query.send(function(response) {
+                    if (response.isError()) {
+                        document.getElementById('student-data').innerHTML = '<p class="error-message">Gagal memuat data siswa: ' + response.getMessage() + '</p>';
+                        resolve();
+                        return;
+                    }
+                    
+                    const data = response.getDataTable();
+                    const kelasList = ["VII.1", "VII.2", "VIII.1", "VIII.2", "IX.1", "IX.2"];
+                    const stats = {};
+                    kelasList.forEach(k => stats[k] = { total: 0, L: 0, P: 0 });
+                    
+                    let total = { total: 0, L: 0, P: 0 };
+                    
+                    for (let i = 0; i < data.getNumberOfRows(); i++) {
+                        const gender = data.getValue(i, 0);
+                        const kelas = data.getValue(i, 1);
+                        
+                        if (kelasList.includes(kelas)) {
+                            stats[kelas].total++;
+                            total.total++;
+                            if (gender === "L") { stats[kelas].L++; total.L++; }
+                            if (gender === "P") { stats[kelas].P++; total.P++; }
+                        }
+                    }
+                    
+                    let html = '<div class="student-stats">';
+                    kelasList.forEach(kelas => {
+                        const { total: t, L, P } = stats[kelas];
+                        html += `
+                            <div class="stat-card">
+                                <div class="stat-value">${t}</div>
+                                <div class="stat-label">Kelas ${kelas}</div>
+                                <div class="stat-label">L: ${L} | P: ${P}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += `
+                        <div class="stat-card" style="background: rgba(255,215,0,0.1);">
+                            <div class="stat-value">${total.total}</div>
+                            <div class="stat-label">Total Siswa</div>
+                            <div class="stat-label">L: ${total.L} | P: ${total.P}</div>
+                        </div>
+                    `;
+                    
+                    html += '</div>';
+                    document.getElementById('student-data').innerHTML = html;
+                    resolve();
+                });
+            });
+        }
+        
+        // Fungsi untuk memproses agenda kegiatan
+        function fetchDataAgenda() {
+            return new Promise((resolve) => {
+                const queryString = encodeURIComponent("SELECT A, B, C");
+                const sheetName = "Agenda";
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${sheetName}&headers=1&tq=${queryString}`;
+                const query = new google.visualization.Query(url);
+                
+                query.send(function(response) {
+                    if (response.isError()) {
+                        document.getElementById('agenda-data').innerHTML = '<p class="error-message">Gagal memuat agenda: ' + response.getMessage() + '</p>';
+                        resolve();
+                        return;
+                    }
+                    
+                    const data = response.getDataTable();
+                    let html = '<ul class="event-list">';
+                    const rows = data.getNumberOfRows();
+                    
+                    for (let i = 0; i < rows; i++) {
+                        const rawTanggal = data.getValue(i, 0);
+                        const judul = data.getValue(i, 1) || "-";
+                        const ket = data.getValue(i, 2) || "-";
+                        
+                        let tanggalFormatted = "-";
+                        if (rawTanggal instanceof Date) {
+                            const dd = String(rawTanggal.getDate()).padStart(2, '0');
+                            const mm = String(rawTanggal.getMonth() + 1).padStart(2, '0');
+                            const yyyy = rawTanggal.getFullYear();
+                            tanggalFormatted = `${dd}-${mm}-${yyyy}`;
+                        } else if (typeof rawTanggal === "string") {
+                            tanggalFormatted = rawTanggal;
+                        }
+                        
+                        html += `
+                            <li>
+                                <span class="event-date">${tanggalFormatted}</span>
+                                <span class="event-desc">${judul} - ${ket}</span>
+                            </li>
+                        `;
+                    }
+                    
+                    html += '</ul>';
+                    document.getElementById('agenda-data').innerHTML = html || '<p>Tidak ada agenda kegiatan</p>';
+                    resolve();
+                });
+            });
+        }
+        
+        // Fungsi untuk memproses data guru pembina
+        function fetchDataGuru() {
+            return new Promise((resolve) => {
+                const queryString = encodeURIComponent("SELECT *");
+                const sheetName = "Guru";
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${sheetName}&headers=1&tq=${queryString}`;
+                const query = new google.visualization.Query(url);
+                
+                query.send(function(response) {
+                    if (response.isError()) {
+                        document.getElementById('guru-data').innerHTML = '<p class="error-message">Gagal memuat data guru: ' + response.getMessage() + '</p>';
+                        resolve();
+                        return;
+                    }
+                    
+                    const data = response.getDataTable();
+                    const hari = new Date().toLocaleDateString('id-ID', { weekday: 'long' }).toLowerCase();
+                    const rows = data.getNumberOfRows();
+                    const cols = data.getNumberOfColumns();
+                    let found = false;
+                    
+                    for (let i = 0; i < rows; i++) {
+                        const namaHari = (data.getValue(i, 0) || "").toString().toLowerCase();
+                        
+                        if (namaHari === hari) {
+                            let html = '<div class="staff-list">';
+                            
+                            for (let j = 1; j < cols; j++) {
+                                const waktu = data.getColumnLabel(j);
+                                const namaGuru = data.getValue(i, j);
+                                if (namaGuru) {
+                                    html += `
+                                        <div class="staff-item">
+                                            <span class="staff-time">${waktu}</span>
+                                            <span>${namaGuru}</span>
+                                        </div>
+                                    `;
+                                }
+                            }
+                            
+                            html += '</div>';
+                            document.getElementById('guru-data').innerHTML = html;
+                            found = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!found) {
+                        document.getElementById('guru-data').innerHTML = '<p>Tidak ada data guru untuk hari ini</p>';
+                    }
+                    resolve();
+                });
+            });
+        }
+        
+        // Fungsi untuk rotasi card
+        function rotateCards() {
+            const cards = document.querySelectorAll('.info-card');
+            const indicators = document.querySelectorAll('.indicator');
+            let currentActive = 0;
+            
+            // Temukan card aktif
+            cards.forEach((card, index) => {
+                if (card.classList.contains('active')) {
+                    currentActive = index;
+                    card.classList.remove('active');
+                    card.classList.add('prev');
+                    indicators[index].classList.remove('active');
+                }
+            });
+            
+            // Tentukan card berikutnya
+            const nextActive = (currentActive + 1) % cards.length;
+            
+            // Aktifkan card berikutnya
+            setTimeout(() => {
+                cards.forEach(card => card.classList.remove('prev', 'next'));
+                cards[nextActive].classList.add('active');
+                indicators[nextActive].classList.add('active');
+            }, 100);
+            
+            // Set timeout untuk rotasi berikutnya (20 detik)
+            setTimeout(rotateCards, 20000);
+        }
+        
+        // Fungsi untuk navigasi manual dengan indicator
+        function setupIndicators() {
+            const indicators = document.querySelectorAll('.indicator');
+            indicators.forEach(indicator => {
+                indicator.addEventListener('click', function() {
+                    const cardIndex = parseInt(this.getAttribute('data-card')) - 1;
+                    const cards = document.querySelectorAll('.info-card');
+                    const currentActive = document.querySelector('.info-card.active');
+                    const indicators = document.querySelectorAll('.indicator');
+                    
+                    // Update indicators
+                    indicators.forEach(ind => ind.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Animate card transition
+                    currentActive.classList.remove('active');
+                    currentActive.classList.add('next');
+                    
+                    setTimeout(() => {
+                        cards.forEach(card => card.classList.remove('prev', 'next'));
+                        cards[cardIndex].classList.add('active');
+                    }, 100);
+                    
+                    // Reset timer
+                    clearTimeout(window.cardRotationTimer);
+                    window.cardRotationTimer = setTimeout(rotateCards, 20000);
+                });
+            });
+        }
+        
+        // Jalankan semua fungsi saat halaman dimuat
+        window.onload = async function() {
+            loadYouTubeVideo();
+            updateClock();
+            setupIndicators();
+            
+            // Fetch data from Google Sheets
+            await fetchData();
+            
+            // Mulai rotasi card setelah 5 detik
+            window.cardRotationTimer = setTimeout(rotateCards, 5000);
+            
+            // Refresh data every 5 minutes
+            setInterval(async () => {
+                await fetchData();
+            }, 300000);
+        };
+    </script>
+</body>
+</html>
